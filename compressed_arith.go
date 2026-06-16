@@ -32,7 +32,7 @@ func (c *CSR) MulVecTo(dst []float64, trans bool, x []float64) {
 	blas.Dusmv(trans, 1, c.RawMatrix(), x, 1, dst, 1)
 }
 
-func (c *CSR) ScaleRowsMask(x []float64, mask roaring.Bitmap) {
+func (c *CSR) ScaleRowsMask(x []float64, mask *roaring.Bitmap) {
 	ar, ac := c.Dims()
 
 	if ac != len(x) {
@@ -48,7 +48,7 @@ func (c *CSR) ScaleRowsMask(x []float64, mask roaring.Bitmap) {
 	}
 }
 
-func (c *CSR) ReplaceRowMask(x []float64, mask roaring.Bitmap) {
+func (c *CSR) ReplaceRowMask(x []float64, mask *roaring.Bitmap) {
 	ar, ac := c.Dims()
 
 	if ac != len(x) {
