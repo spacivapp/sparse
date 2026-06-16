@@ -1,6 +1,7 @@
 package sparse
 
 import (
+	"github.com/docker/docker/libnetwork/bitmap"
 	"github.com/james-bowman/sparse/blas"
 	"gonum.org/v1/gonum/mat"
 )
@@ -29,6 +30,38 @@ func (c *CSR) MulVecTo(dst []float64, trans bool, x []float64) {
 	}
 
 	blas.Dusmv(trans, 1, c.RawMatrix(), x, 1, dst, 1)
+}
+
+func (c *CSR) ScaleRowsMask(x []float64, mask bitmap.Bitmap) {
+	ar, ac := c.Dims()
+
+	if ac != len(x) {
+		panic(mat.ErrShape)
+	}
+
+	for row := 0; row < ar; row++ {
+		if mask.IsSet(uint64(row)) {
+			for column := 0; column < ac; column++ {
+				c.matrix.Set(row, column, c.At(row, column)*x[column])
+			}
+		}
+	}
+}
+
+func (c *CSR) ReplaceRowMask(x []float64, mask bitmap.Bitmap) {
+	ar, ac := c.Dims()
+
+	if ac != len(x) {
+		panic(mat.ErrShape)
+	}
+
+	for row := 0; row < ar; row++ {
+		for column := 0; column < ac; column++ {
+			if mask.IsSet(uint64(row)) {
+				c.matrix.Set(row, column, x[column])
+			}
+		}
+	}
 }
 
 // MulVecTo performs matrix vector multiplication (dst+=A*x or dst+=A^T*x), where A is
