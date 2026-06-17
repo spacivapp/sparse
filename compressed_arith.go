@@ -64,6 +64,18 @@ func (c *CSR) ReplaceRowMask(x []float64, mask *roaring.Bitmap) {
 	}
 }
 
+func (c *CSC) AddToColumn(x []float64, idx int) {
+	r, _ := c.Dims()
+
+	if r != len(x) {
+		panic(mat.ErrShape)
+	}
+
+	for i, val := range x {
+		c.Set(i, idx, val+c.At(i, idx))
+	}
+}
+
 // MulVecTo performs matrix vector multiplication (dst+=A*x or dst+=A^T*x), where A is
 // the receiver, and stores the result in dst.  MulVecTo panics if ac != len(x) or
 // ar != len(dst)
